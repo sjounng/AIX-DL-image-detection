@@ -205,3 +205,66 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ============================================
+# Project Specific - AI Image Detection
+# ============================================
+
+# Dataset - 용량이 큰 이미지 파일들
+data/raw/FAKE/
+data/raw/REAL/
+data/raw/*.zip
+data/raw/*.tar.gz
+data/processed/
+
+# 다운로드한 압축 파일
+archive.zip
+*.zip
+*.tar.gz
+*.rar
+
+# 학습된 모델 파일 (용량이 큼)
+models/*.pth
+models/*.pt
+models/*.h5
+models/*.keras
+models/*.ckpt
+models/*.pb
+models/*.onnx
+
+# TensorBoard 로그
+runs/
+logs/
+tensorboard/
+
+# 결과 파일 중 큰 파일들
+results/figures/*.png
+results/figures/*.jpg
+results/figures/*.pdf
+results/metrics/*.csv
+results/reports/*.pdf
+
+# Jupyter Notebook 체크포인트
+**/.ipynb_checkpoints/
+
+# macOS 시스템 파일
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Kaggle 인증
+.kaggle/
+kaggle.json
+
+# 임시 파일
+*.tmp
+*.temp
+*~
+
+# 실험 결과 캐시
+.cache/
+*.pkl
+*.pickle
