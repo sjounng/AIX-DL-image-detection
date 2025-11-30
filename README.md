@@ -244,24 +244,34 @@ AI 생성 이미지와 실제 이미지를 구분하는 주요 특징:
 
 ### 1. 모델 성능 비교
 
-#### ✅ 테스트 세트 평가 결과
+#### ✅ 테스트 세트 평가 결과 (전체 4개 모델 완료)
 
-| 모델 | Test Accuracy | Precision | Recall | F1-Score | ROC AUC | 훈련 Epoch |
-|------|--------------|-----------|--------|----------|---------|-----------|
-| **EfficientNetB0** | **98.97%** | **99.13%** | **98.80%** | **98.96%** | **0.9996** | 24 (Early Stop) |
-| **ResNet50** | **98.78%** | **99.13%** | **98.43%** | **98.78%** | **0.9993** | 34 (Early Stop) |
-| SimpleCNN | TBD | TBD | TBD | TBD | TBD | - |
-| VGG16 | TBD | TBD | TBD | TBD | TBD | - |
+| 모델 | Test Accuracy | Precision | Recall | F1-Score | ROC AUC | 파라미터 수 |
+|------|--------------|-----------|--------|----------|---------|------------|
+| **EfficientNetB0** | **98.97%** | **99.13%** | **98.80%** | **98.96%** | **0.9996** | ~4M |
+| **ResNet50** | **98.78%** | **99.13%** | **98.43%** | **98.78%** | **0.9993** | ~23M |
+| **VGG16** | **98.65%** | **98.86%** | **98.43%** | **98.65%** | **0.9988** | ~134M |
+| **SimpleCNN** | **97.18%** | **97.80%** | **96.53%** | **97.16%** | **0.9961** | ~2M |
 
 **주요 발견:**
-- EfficientNetB0가 가장 높은 성능 달성 (98.97% 정확도)
-- 두 모델 모두 ROC AUC 0.999 이상으로 우수한 판별 능력
-- EfficientNetB0가 더 적은 에폭으로 더 높은 성능 달성 (24 vs 34)
-- Early Stopping이 효과적으로 작동하여 과적합 방지
+- ✅ **EfficientNetB0가 최고 성능 달성** (98.97% 정확도, ROC AUC 0.9996)
+- ✅ **효율성**: EfficientNetB0는 가장 적은 파라미터(~4M)로 최고 성능 달성
+- ✅ **전이학습 효과**: 사전학습된 모델(ResNet50, EfficientNetB0, VGG16)이 SimpleCNN보다 1.5%p 이상 높은 성능
+- ✅ **모델 크기 vs 성능**: VGG16은 파라미터가 134M으로 가장 크지만, EfficientNetB0보다 성능이 낮음
+- ✅ **모든 모델 ROC AUC > 0.99**: AI 생성 이미지 판별 작업에 매우 효과적
+
+**베스트 모델 (EfficientNetB0) 상세 성능:**
+- Test Loss: 0.0283
+- Test Accuracy: 98.97% (5,938/6,000 정확 분류)
+- Precision: 99.13% (AI 생성으로 예측한 것 중 99.13%가 실제 AI 생성)
+- Recall: 98.80% (실제 AI 생성 이미지의 98.80%를 정확히 탐지)
+- F1-Score: 98.96% (Precision과 Recall의 조화평균)
+- ROC AUC: 0.9996 (거의 완벽한 분류 성능)
 
 **클래스별 상세 성능 (EfficientNetB0):**
 - FAKE 이미지: Precision 98.80%, Recall 99.13%, F1 98.97%
 - REAL 이미지: Precision 99.13%, Recall 98.80%, F1 98.96%
+- 클래스 간 균형잡힌 성능
 
 ### 2. 학습 곡선 (Learning Curves)
 
@@ -365,23 +375,116 @@ AI 생성 이미지와 실제 이미지를 구분하는 주요 특징:
 
 ### 프로젝트 결과 요약
 
-*(프로젝트 완료 후 작성 예정)*
+본 프로젝트에서는 AI 생성 이미지와 실제 이미지를 구분하는 딥러닝 모델을 성공적으로 구현하고 평가했습니다.
 
-- 최고 성능 모델 및 정확도
-- 주요 발견 사항
-- AI 생성 이미지 판별의 핵심 특징
+#### 🏆 주요 성과
+
+**1. 최고 성능 모델: EfficientNetB0**
+- **Test Accuracy: 98.97%** - 6,000개 테스트 이미지 중 5,938개 정확 분류
+- **ROC AUC: 0.9996** - 거의 완벽한 분류 성능
+- **효율성**: 약 4M 파라미터로 최고 성능 달성 (VGG16 대비 1/33 크기)
+- **균형잡힌 성능**: FAKE/REAL 클래스 모두 98%+ F1-Score
+
+**2. 모델 비교 분석 완료**
+- 4가지 모델 학습 및 평가 완료 (SimpleCNN, ResNet50, EfficientNetB0, VGG16)
+- 전이학습의 효과 입증: 사전학습 모델들이 SimpleCNN 대비 1.5%p+ 높은 성능
+- 모델 크기와 성능이 비례하지 않음: EfficientNetB0 > ResNet50 > VGG16 (효율성 순)
+
+**3. 실용적 활용 가능성**
+- 98.97% 정확도로 실제 환경에서 활용 가능한 수준
+- 빠른 추론 속도와 낮은 메모리 사용량
+- Inference 시스템 구현으로 실시간 판별 가능
+
+#### 🔍 주요 발견 사항
+
+1. **전이학습의 중요성**
+   - ImageNet 사전학습 가중치가 AI 이미지 판별에도 매우 효과적
+   - 적은 데이터로도 높은 성능 달성 가능
+
+2. **모델 효율성**
+   - EfficientNet의 Compound Scaling 기법이 효과적
+   - 파라미터 수가 많다고 반드시 성능이 좋은 것은 아님
+
+3. **클래스 균형**
+   - FAKE/REAL 클래스 간 성능 차이 < 0.5%p로 매우 균형잡힌 분류
+   - 데이터 증강 및 균형잡힌 데이터셋의 효과
+
+4. **AI 생성 이미지의 특징**
+   - 딥러닝 모델이 인간이 감지하기 어려운 패턴 학습
+   - 픽셀 수준의 미세한 차이로도 98%+ 정확도 달성 가능
 
 ### 한계점 및 개선 방향
 
-- 프로젝트의 한계점
-- 추후 개선 가능한 부분
-- 추가 실험 아이디어
+#### 한계점
+1. **데이터셋 특성**
+   - 예술 작품 위주 데이터셋으로, 일반 사진이나 다른 도메인에서의 성능은 검증 필요
+   - 특정 AI 생성 도구(Stable Diffusion, Latent Diffusion)에 제한
+
+2. **최신 생성 모델 대응**
+   - DALL-E 3, Midjourney v6 등 최신 모델 생성 이미지는 미포함
+   - 생성 기술 발전에 따른 지속적인 모델 업데이트 필요
+
+3. **설명 가능성**
+   - 모델이 어떤 특징을 보고 판단하는지 완전히 이해하기 어려움
+   - Grad-CAM 등 시각화 기법 추가 필요
+
+#### 개선 방향
+1. **데이터 확장**
+   - 다양한 도메인(풍경, 인물, 사물 등) 이미지 추가
+   - 최신 AI 생성 도구의 이미지 포함
+
+2. **모델 앙상블**
+   - 상위 성능 모델들(EfficientNetB0 + ResNet50)의 앙상블로 성능 향상 가능
+   - 예상 성능: 99%+ 정확도
+
+3. **설명 가능한 AI**
+   - Grad-CAM, LIME 등을 통한 판단 근거 시각화
+   - 사용자 신뢰도 향상
+
+4. **실시간 웹 서비스**
+   - Gradio/Streamlit 기반 웹 인터페이스 개발
+   - 일반 사용자도 쉽게 사용 가능한 서비스 구축
+
+5. **경량화**
+   - 모델 양자화(Quantization) 및 프루닝(Pruning)
+   - 모바일 환경에서도 동작 가능하도록 최적화
 
 ### 배운 점 및 느낀 점
 
-- 딥러닝 모델 구현 경험
-- 팀 협업 과정에서의 배움
-- 실제 문제 해결을 위한 AI 적용 경험
+#### 기술적 배움
+1. **딥러닝 파이프라인 구축**
+   - 데이터 전처리부터 학습, 평가, 추론까지 전체 파이프라인 구현
+   - PyTorch를 활용한 효율적인 코드 작성
+
+2. **전이학습의 실전 활용**
+   - 사전학습 모델의 효과적인 Fine-tuning 기법
+   - 다양한 아키텍처(CNN, ResNet, EfficientNet, VGG) 비교 경험
+
+3. **하이퍼파라미터 튜닝**
+   - Learning Rate Scheduling, Early Stopping 등 학습 기법
+   - 과적합 방지 및 최적 성능 달성 방법
+
+4. **모델 평가**
+   - 다양한 평가 지표(Accuracy, Precision, Recall, F1, ROC-AUC) 활용
+   - 혼동 행렬 및 ROC 곡선 분석 능력
+
+#### 실무 역량
+1. **문제 해결 능력**
+   - 실제 사회 문제(가짜 이미지 탐지)를 AI로 해결
+   - 98.97% 정확도로 실용적 수준 달성
+
+2. **프로젝트 관리**
+   - 체계적인 코드 구조화 및 문서화
+   - Git을 활용한 버전 관리
+
+3. **데이터 중심 사고**
+   - 데이터 품질이 모델 성능에 미치는 영향 이해
+   - 적절한 전처리 및 증강 기법의 중요성
+
+#### 인사이트
+- AI 생성 이미지 판별은 기술적으로 충분히 가능하며, 실용적 가치가 높음
+- 최신 딥러닝 모델(EfficientNet)은 효율성과 성능을 동시에 달성 가능
+- 지속적인 학습과 업데이트가 필요한 분야 (생성 기술 vs 탐지 기술의 경쟁)
 
 
 ---
@@ -433,8 +536,10 @@ ai-image-detection/
 │   └── inference.py        # 이미지 판별 스크립트
 │
 ├── models/                  # 저장된 모델 체크포인트
-│   ├── efficientnet_b0_best.pth  # EfficientNetB0 (98.97% 정확도)
-│   └── resnet50_best.pth         # ResNet50 (98.78% 정확도)
+│   ├── efficientnet_b0_best.pth  # EfficientNetB0 (98.97% 정확도) ⭐
+│   ├── resnet50_best.pth         # ResNet50 (98.78% 정확도)
+│   ├── vgg16_best.pth            # VGG16 (98.65% 정확도)
+│   └── simple_cnn_best.pth       # SimpleCNN (97.18% 정확도)
 │
 ├── results/                 # 결과 파일
 │   ├── figures/            # 그래프 및 시각화
@@ -443,14 +548,23 @@ ai-image-detection/
 │   │   ├── efficientnet_b0_roc_curve.png
 │   │   ├── resnet50_training_curves.png
 │   │   ├── resnet50_confusion_matrix.png
-│   │   └── resnet50_roc_curve.png
+│   │   ├── resnet50_roc_curve.png
+│   │   ├── vgg16_training_curves.png
+│   │   ├── vgg16_confusion_matrix.png
+│   │   ├── vgg16_roc_curve.png
+│   │   ├── simple_cnn_training_curves.png
+│   │   ├── simple_cnn_confusion_matrix.png
+│   │   └── simple_cnn_roc_curve.png
 │   ├── metrics/            # 평가 지표 CSV
 │   │   ├── efficientnet_b0_training_history.csv
 │   │   ├── efficientnet_b0_test_results.csv
 │   │   ├── resnet50_training_history.csv
-│   │   └── resnet50_test_results.csv
+│   │   ├── resnet50_test_results.csv
+│   │   ├── vgg16_training_history.csv
+│   │   ├── vgg16_test_results.csv
+│   │   ├── simple_cnn_training_history.csv
+│   │   └── simple_cnn_test_results.csv
 │   └── predictions/        # Inference 결과
-│       └── efficientnet_b0_predictions.csv
 │
 └── docs/                    # 추가 문서
     └── presentation.pdf    # 발표 자료 (선택사항)
@@ -553,28 +667,30 @@ python src/inference.py --model efficientnet_b0 --image "image.jpg" --output "re
 
 ## 📊 프로젝트 진행 현황
 
-### ✅ 완료된 작업
+### ✅ 완료된 작업 (프로젝트 완료)
 - [x] 데이터셋 다운로드 및 구조 확인
 - [x] 데이터 전처리 및 Train/Val/Test 분할 (70/15/15)
 - [x] PyTorch Dataset 및 DataLoader 구현
 - [x] 모델 아키텍처 구현 (SimpleCNN, ResNet50, EfficientNetB0, VGG16)
 - [x] 학습 파이프라인 구축 (Early Stopping, ReduceLROnPlateau)
-- [x] EfficientNetB0 모델 훈련 완료 (98.97% 정확도)
-- [x] ResNet50 모델 훈련 완료 (98.78% 정확도)
-- [x] 평가 스크립트 작성 및 테스트 세트 평가
+- [x] **전체 4개 모델 학습 완료**
+  - [x] EfficientNetB0 (98.97% 정확도) ⭐
+  - [x] ResNet50 (98.78% 정확도)
+  - [x] VGG16 (98.65% 정확도)
+  - [x] SimpleCNN (97.18% 정확도)
+- [x] 평가 스크립트 작성 및 **전체 모델 테스트 세트 평가 완료**
 - [x] 추론(Inference) 시스템 구현
-- [x] 혼동 행렬, ROC 곡선 생성
+- [x] 혼동 행렬, ROC 곡선, 학습 곡선 생성 (전체 모델)
+- [x] **4개 모델 종합 성능 비교 분석 완료**
+- [x] **README 문서 최종 업데이트**
+- [x] **프로젝트 결과 문서화 완료**
 
-### 🔄 진행 중인 작업
-- [ ] VGG16 모델 훈련
-- [ ] SimpleCNN 모델 훈련
-- [ ] 4개 모델 종합 성능 비교 분석
-
-### 📝 향후 계획
+### 📝 향후 확장 계획 (선택사항)
 - [ ] Grad-CAM 시각화 구현
 - [ ] 오분류 사례 상세 분석
+- [ ] 모델 앙상블 (EfficientNetB0 + ResNet50)
 - [ ] 웹 인터페이스 개발 (Gradio/Streamlit)
-- [ ] 최종 프로젝트 보고서 작성
+- [ ] 모델 경량화 (Quantization, Pruning)
 - [ ] 발표 영상 제작
 
 ---

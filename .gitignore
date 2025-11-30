@@ -237,13 +237,30 @@ runs/
 logs/
 tensorboard/
 
-# Generated result files
-results/figures/*.png
+# Generated result files - Keep important visualizations and metrics
+# Allow key result files for project showcase
+!results/MODEL_COMPARISON_REPORT.md
+!results/create_comparison_charts.py
+
+# Allow important figures (comparison charts and evaluation plots)
+!results/figures/model_comparison_comprehensive.png
+!results/figures/model_comparison_table.png
+!results/figures/*_confusion_matrix.png
+!results/figures/*_roc_curve.png
+
+# Allow test results CSV (final evaluation metrics)
+!results/metrics/*_test_results.csv
+
+# Exclude detailed training data (can be regenerated)
+results/metrics/*_training_history.csv
+
+# Exclude predictions folder (can be regenerated)
+results/predictions/
+
+# Exclude other generated files
 results/figures/*.jpg
 results/figures/*.pdf
-results/metrics/*.csv
 results/reports/*.pdf
-results/predictions/
 
 # Jupyter Notebook checkpoints
 **/.ipynb_checkpoints/
