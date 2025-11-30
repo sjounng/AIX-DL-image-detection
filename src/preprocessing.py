@@ -1,10 +1,10 @@
 """
-데이터 전처리 스크립트
+Data Preprocessing Script
 
-이 스크립트는 AI 이미지 판별 데이터셋을 Train/Validation/Test로 분할하고,
-전처리 파이프라인을 정의합니다.
+This script splits the AI image detection dataset into Train/Validation/Test sets
+and prepares the preprocessing pipeline.
 
-실행 방법:
+Usage:
     python src/preprocessing.py
 """
 
@@ -19,24 +19,24 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
-# 랜덤 시드 고정 (재현성)
+# Random seed for reproducibility
 RANDOM_SEED = 42
 random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 
-# 시각화 설정
+# Visualization settings
 plt.style.use('seaborn-v0_8-darkgrid')
 sns.set_palette("husl")
 
 
 def setup_directories():
-    """프로젝트 디렉토리 설정"""
+    """Setup project directories"""
     project_root = Path(__file__).parent.parent
     data_dir = project_root / 'data' / 'raw'
     output_dir = project_root / 'data' / 'processed'
     results_dir = project_root / 'results' / 'figures'
 
-    # 출력 디렉토리 생성
+    # Create output directories
     output_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -51,17 +51,17 @@ def setup_directories():
 
 
 def collect_image_paths(dirs):
-    """이미지 파일 경로 수집"""
-    print("이미지 파일 경로 수집 중...")
+    """Collect image file paths"""
+    print("Collecting image file paths...")
 
     fake_images = list(dirs['fake_dir'].glob('*.jpg')) + list(dirs['fake_dir'].glob('*.png'))
     real_images = list(dirs['real_dir'].glob('*.jpg')) + list(dirs['real_dir'].glob('*.png'))
 
-    print(f"\nFAKE 이미지: {len(fake_images):,}개")
-    print(f"REAL 이미지: {len(real_images):,}개")
-    print(f"전체 이미지: {len(fake_images) + len(real_images):,}개")
+    print(f"\nFAKE images: {len(fake_images):,}")
+    print(f"REAL images: {len(real_images):,}")
+    print(f"Total images: {len(fake_images) + len(real_images):,}")
 
-    # 경로와 레이블 생성
+    # Create paths and labels
     image_paths = fake_images + real_images
     labels = [0] * len(fake_images) + [1] * len(real_images)  # 0: FAKE, 1: REAL
 
@@ -69,12 +69,12 @@ def collect_image_paths(dirs):
 
 
 def split_dataset(image_paths, labels):
-    """데이터셋을 Train/Validation/Test로 분할"""
+    """Split dataset into Train/Validation/Test"""
     print("\n" + "="*60)
-    print("데이터 분할 중...")
+    print("Splitting dataset...")
     print("="*60)
 
-    # Train / (Val + Test) 분할 (70% / 30%)
+    # Train / (Val + Test) split (70% / 30%)
     train_paths, temp_paths, train_labels, temp_labels = train_test_split(
         image_paths,
         labels,
@@ -83,22 +83,22 @@ def split_dataset(image_paths, labels):
         random_state=RANDOM_SEED
     )
 
-    print(f"\n1단계: Train / Temp 분할")
-    print(f"  Train: {len(train_paths):,}개 ({len(train_paths)/len(image_paths)*100:.1f}%)")
-    print(f"  Temp:  {len(temp_paths):,}개 ({len(temp_paths)/len(image_paths)*100:.1f}%)")
+    print(f"\nStep 1: Train / Temp split")
+    print(f"  Train: {len(train_paths):,} ({len(train_paths)/len(image_paths)*100:.1f}%)")
+    print(f"  Temp:  {len(temp_paths):,} ({len(temp_paths)/len(image_paths)*100:.1f}%)")
 
-    # Val / Test 분할 (각각 15%)
+    # Val / Test split (15% each)
     val_paths, test_paths, val_labels, test_labels = train_test_split(
         temp_paths,
         temp_labels,
-        test_size=0.5,  # 30%의 절반 = 15%
+        test_size=0.5,  # 50% of 30% = 15%
         stratify=temp_labels,
         random_state=RANDOM_SEED
     )
 
-    print(f"\n2단계: Val / Test 분할")
-    print(f"  Val:   {len(val_paths):,}개 ({len(val_paths)/len(image_paths)*100:.1f}%)")
-    print(f"  Test:  {len(test_paths):,}개 ({len(test_paths)/len(image_paths)*100:.1f}%)")
+    print(f"\nStep 2: Val / Test split")
+    print(f"  Val:   {len(val_paths):,} ({len(val_paths)/len(image_paths)*100:.1f}%)")
+    print(f"  Test:  {len(test_paths):,} ({len(test_paths)/len(image_paths)*100:.1f}%)")
 
     return {
         'train': (train_paths, train_labels),
@@ -108,9 +108,9 @@ def split_dataset(image_paths, labels):
 
 
 def print_split_statistics(splits):
-    """분할 결과 통계 출력"""
+    """Print split statistics"""
     print("\n" + "="*60)
-    print("데이터 분할 결과 (클래스별)")
+    print("Dataset Split Results (by class)")
     print("="*60)
 
     for split_name, (paths, labels) in splits.items():
@@ -118,19 +118,19 @@ def print_split_statistics(splits):
         real_count = labels.count(1)
         total = len(paths)
 
-        print(f"\n{split_name.upper()} Set: {total:,}개")
-        print(f"  FAKE: {fake_count:,}개 ({fake_count/total*100:.1f}%)")
-        print(f"  REAL: {real_count:,}개 ({real_count/total*100:.1f}%)")
+        print(f"\n{split_name.upper()} Set: {total:,} samples")
+        print(f"  FAKE: {fake_count:,} ({fake_count/total*100:.1f}%)")
+        print(f"  REAL: {real_count:,} ({real_count/total*100:.1f}%)")
 
     print("\n" + "="*60)
-    print("✅ 클래스 균형이 모든 세트에서 유지되고 있습니다!")
+    print("[OK] Class balance is maintained across all sets!")
     print("="*60)
 
 
 def save_to_csv(splits, output_dir):
-    """분할된 데이터를 CSV로 저장"""
+    """Save split data to CSV"""
     print("\n" + "="*60)
-    print("CSV 파일 저장 중...")
+    print("Saving CSV files...")
     print("="*60)
 
     for split_name, (paths, labels) in splits.items():
@@ -141,17 +141,17 @@ def save_to_csv(splits, output_dir):
 
         csv_path = output_dir / f'{split_name}.csv'
         df.to_csv(csv_path, index=False)
-        print(f"  ✓ {split_name}.csv ({len(df):,}개) 저장 완료")
+        print(f"  [OK] {split_name}.csv ({len(df):,} samples) saved")
 
-    print(f"\n저장 위치: {output_dir}")
+    print(f"\nSaved to: {output_dir}")
     print("="*60)
 
 
 def visualize_split_distribution(splits, results_dir):
-    """분할 결과 시각화"""
-    print("\n시각화 생성 중...")
+    """Visualize split distribution"""
+    print("\nGenerating visualizations...")
 
-    # 데이터 준비
+    # Prepare data
     datasets = []
     fake_counts = []
     real_counts = []
@@ -161,7 +161,7 @@ def visualize_split_distribution(splits, results_dir):
         fake_counts.append(labels.count(0))
         real_counts.append(labels.count(1))
 
-    # 막대 그래프
+    # Bar chart
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     colors = ['#FF6B6B', '#4ECDC4']
 
@@ -169,25 +169,25 @@ def visualize_split_distribution(splits, results_dir):
         bars = ax.bar(['FAKE', 'REAL'], [fake, real], color=colors,
                      alpha=0.7, edgecolor='black', linewidth=2)
         ax.set_title(f'{dataset} Set', fontsize=14, fontweight='bold')
-        ax.set_ylabel('이미지 개수', fontsize=12)
+        ax.set_ylabel('Number of Images', fontsize=12)
         ax.grid(axis='y', alpha=0.3)
 
-        # 막대 위에 값 표시
+        # Display values on bars
         for bar in bars:
             height = bar.get_height()
             ax.text(bar.get_x() + bar.get_width()/2., height,
                    f'{int(height):,}',
                    ha='center', va='bottom', fontsize=11, fontweight='bold')
 
-    plt.suptitle('Train/Validation/Test 분할 결과', fontsize=16, fontweight='bold', y=1.02)
+    plt.suptitle('Train/Validation/Test Split Results', fontsize=16, fontweight='bold', y=1.02)
     plt.tight_layout()
 
     save_path = results_dir / 'data_split_distribution.png'
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ 분할 결과 그래프 저장: {save_path.name}")
+    print(f"  [OK] Split distribution graph saved: {save_path.name}")
 
-    # 파이 차트
+    # Pie chart
     fig, ax = plt.subplots(figsize=(8, 8))
 
     sizes = [len(paths) for paths, _ in splits.values()]
@@ -210,58 +210,58 @@ def visualize_split_distribution(splits, results_dir):
         autotext.set_color('white')
         autotext.set_fontsize(14)
 
-    ax.set_title('데이터셋 분할 비율', fontsize=16, fontweight='bold', pad=20)
+    ax.set_title('Dataset Split Ratio', fontsize=16, fontweight='bold', pad=20)
 
     save_path = results_dir / 'data_split_ratio.png'
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ 분할 비율 파이 차트 저장: {save_path.name}")
+    print(f"  [OK] Split ratio pie chart saved: {save_path.name}")
 
 
 def print_summary(output_dir, results_dir):
-    """작업 요약 출력"""
+    """Print summary"""
     print("\n" + "="*60)
-    print("작업 완료!")
+    print("Task Completed!")
     print("="*60)
-    print("\n📁 생성된 파일:")
-    print(f"\nCSV 파일 ({output_dir}):")
+    print("\n[FILES] Generated files:")
+    print(f"\nCSV files ({output_dir}):")
     print("  - train.csv")
     print("  - val.csv")
     print("  - test.csv")
-    print(f"\n시각화 파일 ({results_dir}):")
+    print(f"\nVisualization files ({results_dir}):")
     print("  - data_split_distribution.png")
     print("  - data_split_ratio.png")
-    print("\n🎯 다음 단계:")
-    print("  Phase 4: PyTorch Dataset & DataLoader 구현")
+    print("\n[NEXT] Next step:")
+    print("  Phase 4: Implement PyTorch Dataset & DataLoader")
     print("="*60)
 
 
 def main():
-    """메인 실행 함수"""
+    """Main execution function"""
     print("="*60)
-    print("AI 이미지 판별 - 데이터 전처리")
+    print("AI Image Detection - Data Preprocessing")
     print("="*60)
     print(f"Random Seed: {RANDOM_SEED}\n")
 
-    # 1. 디렉토리 설정
+    # 1. Setup directories
     dirs = setup_directories()
 
-    # 2. 이미지 경로 수집
+    # 2. Collect image paths
     image_paths, labels = collect_image_paths(dirs)
 
-    # 3. 데이터 분할
+    # 3. Split dataset
     splits = split_dataset(image_paths, labels)
 
-    # 4. 통계 출력
+    # 4. Print statistics
     print_split_statistics(splits)
 
-    # 5. CSV 저장
+    # 5. Save to CSV
     save_to_csv(splits, dirs['output_dir'])
 
-    # 6. 시각화
+    # 6. Visualize
     visualize_split_distribution(splits, dirs['results_dir'])
 
-    # 7. 요약
+    # 7. Summary
     print_summary(dirs['output_dir'], dirs['results_dir'])
 
 

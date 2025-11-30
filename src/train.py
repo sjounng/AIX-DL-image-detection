@@ -1,9 +1,9 @@
 """
-모델 학습 스크립트
+Model Training Script
 
-이 스크립트는 AI 이미지 판별 모델을 학습합니다.
+This script trains the AI image detection model.
 
-사용 예시:
+Usage:
     python src/train.py --model resnet50 --epochs 50 --batch-size 32
     python src/train.py --model efficientnet_b0 --lr 0.0001
 """
@@ -27,17 +27,17 @@ from data_loader import get_dataloaders
 
 def train_one_epoch(model, dataloader, criterion, optimizer, device):
     """
-    1 epoch 학습
+    Train for one epoch
 
     Args:
-        model: PyTorch 모델
+        model: PyTorch model
         dataloader: Training DataLoader
         criterion: Loss function
         optimizer: Optimizer
-        device: 디바이스 (cuda/mps/cpu)
+        device: Device (cuda/mps/cpu)
 
     Returns:
-        dict: 학습 loss와 accuracy
+        dict: Training loss and accuracy
     """
     model.train()
     running_loss = 0.0
@@ -59,16 +59,16 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device):
         loss.backward()
         optimizer.step()
 
-        # 통계
+        # Statistics
         running_loss += loss.item() * images.size(0)
         _, preds = torch.max(outputs, 1)
         all_preds.extend(preds.cpu().numpy())
         all_labels.extend(labels.cpu().numpy())
 
-        # Progress bar 업데이트
+        # Update progress bar
         pbar.set_postfix({'loss': f'{loss.item():.4f}'})
 
-    # Epoch 통계
+    # Epoch statistics
     epoch_loss = running_loss / len(dataloader.dataset)
     epoch_acc = accuracy_score(all_labels, all_preds)
 
@@ -80,16 +80,16 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device):
 
 def validate(model, dataloader, criterion, device):
     """
-    검증
+    Validation
 
     Args:
-        model: PyTorch 모델
+        model: PyTorch model
         dataloader: Validation DataLoader
         criterion: Loss function
-        device: 디바이스
+        device: Device
 
     Returns:
-        dict: 검증 loss, accuracy, precision, recall, f1
+        dict: Validation loss, accuracy, precision, recall, f1
     """
     model.eval()
     running_loss = 0.0
@@ -105,7 +105,7 @@ def validate(model, dataloader, criterion, device):
             outputs = model(images)
             loss = criterion(outputs, labels)
 
-            # 통계
+            # Statistics
             running_loss += loss.item() * images.size(0)
             _, preds = torch.max(outputs, 1)
             all_preds.extend(preds.cpu().numpy())
@@ -113,7 +113,7 @@ def validate(model, dataloader, criterion, device):
 
             pbar.set_postfix({'loss': f'{loss.item():.4f}'})
 
-    # 평가 지표 계산
+    # Calculate evaluation metrics
     epoch_loss = running_loss / len(dataloader.dataset)
     epoch_acc = accuracy_score(all_labels, all_preds)
     precision, recall, f1, _ = precision_recall_fscore_support(
@@ -132,27 +132,27 @@ def validate(model, dataloader, criterion, device):
 def train_model(model, dataloaders, criterion, optimizer, scheduler,
                 device, num_epochs, save_dir, model_name):
     """
-    모델 학습 메인 함수
+    Main training function
 
     Args:
-        model: PyTorch 모델
-        dataloaders: Train/Val DataLoader 딕셔너리
+        model: PyTorch model
+        dataloaders: Train/Val DataLoader dictionary
         criterion: Loss function
         optimizer: Optimizer
         scheduler: Learning rate scheduler
-        device: 디바이스
-        num_epochs: 학습 epoch 수
-        save_dir: 모델 저장 디렉토리
-        model_name: 모델 이름
+        device: Device
+        num_epochs: Number of training epochs
+        save_dir: Model save directory
+        model_name: Model name
 
     Returns:
-        dict: 학습 기록
+        dict: Training history
     """
-    # 저장 디렉토리 생성
+    # Create save directory
     save_dir = Path(save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
 
-    # 학습 기록
+    # Training history
     history = {
         'train_loss': [],
         'train_acc': [],
@@ -164,14 +164,14 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler,
         'lr': []
     }
 
-    # Early stopping 설정
+    # Early stopping settings
     best_val_loss = float('inf')
     best_val_acc = 0.0
     patience = 5
     patience_counter = 0
 
     print("="*60)
-    print(f"학습 시작: {model_name}")
+    print(f"Training Started: {model_name}")
     print("="*60)
     print(f"Device: {device}")
     print(f"Epochs: {num_epochs}")
@@ -185,12 +185,12 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler,
         print(f"\nEpoch {epoch+1}/{num_epochs}")
         print("-" * 60)
 
-        # 학습
+        # Training
         train_metrics = train_one_epoch(
             model, dataloaders['train'], criterion, optimizer, device
         )
 
-        # 검증
+        # Validation
         val_metrics = validate(
             model, dataloaders['val'], criterion, device
         )
@@ -199,7 +199,7 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler,
         scheduler.step(val_metrics['loss'])
         current_lr = optimizer.param_groups[0]['lr']
 
-        # 기록 저장
+        # Save history
         history['train_loss'].append(train_metrics['loss'])
         history['train_acc'].append(train_metrics['accuracy'])
         history['val_loss'].append(val_metrics['loss'])
@@ -209,7 +209,7 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler,
         history['val_f1'].append(val_metrics['f1'])
         history['lr'].append(current_lr)
 
-        # 결과 출력
+        # Print results
         print(f"\nTrain Loss: {train_metrics['loss']:.4f} | "
               f"Train Acc: {train_metrics['accuracy']:.4f}")
         print(f"Val Loss: {val_metrics['loss']:.4f} | "
@@ -219,13 +219,13 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler,
               f"Val F1: {val_metrics['f1']:.4f}")
         print(f"Learning Rate: {current_lr:.6f}")
 
-        # Best model 저장
+        # Save best model
         if val_metrics['loss'] < best_val_loss:
             best_val_loss = val_metrics['loss']
             best_val_acc = val_metrics['accuracy']
             patience_counter = 0
 
-            # 모델 저장
+            # Save model
             checkpoint = {
                 'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
@@ -236,7 +236,7 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler,
             }
             save_path = save_dir / f'{model_name}_best.pth'
             torch.save(checkpoint, save_path)
-            print(f"✓ Best model saved! (Val Loss: {val_metrics['loss']:.4f})")
+            print(f"[OK] Best model saved! (Val Loss: {val_metrics['loss']:.4f})")
 
         else:
             patience_counter += 1
@@ -248,12 +248,12 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler,
                 print("="*60)
                 break
 
-    # 학습 종료
+    # Training completed
     elapsed_time = time.time() - start_time
     print("\n" + "="*60)
-    print("학습 완료!")
+    print("Training Completed!")
     print("="*60)
-    print(f"총 소요 시간: {elapsed_time/60:.2f} 분")
+    print(f"Total Time: {elapsed_time/60:.2f} minutes")
     print(f"Best Val Loss: {best_val_loss:.4f}")
     print(f"Best Val Acc: {best_val_acc:.4f}")
     print("="*60)
@@ -263,11 +263,11 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler,
 
 def plot_training_history(history, save_path):
     """
-    학습 곡선 시각화
+    Visualize training curves
 
     Args:
-        history: 학습 기록
-        save_path: 저장 경로
+        history: Training history
+        save_path: Save path
     """
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
 
@@ -311,24 +311,24 @@ def plot_training_history(history, save_path):
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     plt.close()
 
-    print(f"학습 곡선 저장: {save_path}")
+    print(f"Training curves saved: {save_path}")
 
 
 def save_training_history(history, save_path):
     """
-    학습 기록을 CSV로 저장
+    Save training history to CSV
 
     Args:
-        history: 학습 기록
-        save_path: 저장 경로
+        history: Training history
+        save_path: Save path
     """
     df = pd.DataFrame(history)
     df.to_csv(save_path, index=False)
-    print(f"학습 기록 저장: {save_path}")
+    print(f"Training history saved: {save_path}")
 
 
 def main():
-    """메인 함수"""
+    """Main function"""
     # Argument parser
     parser = argparse.ArgumentParser(description='AI Image Detection Training')
     parser.add_argument('--model', type=str, default='resnet50',
@@ -349,13 +349,13 @@ def main():
 
     args = parser.parse_args()
 
-    # 경로 설정
+    # Path settings
     project_root = Path(__file__).parent.parent
     data_dir = project_root / 'data' / 'processed'
     model_save_dir = project_root / 'models'
     results_dir = project_root / 'results'
 
-    # 디바이스 설정
+    # Device settings
     if torch.cuda.is_available():
         device = torch.device('cuda')
     elif torch.backends.mps.is_available():
@@ -363,18 +363,18 @@ def main():
     else:
         device = torch.device('cpu')
 
-    print(f"\n사용 디바이스: {device}")
+    print(f"\nUsing device: {device}")
 
-    # DataLoader 생성
-    print("\nDataLoader 생성 중...")
+    # Create DataLoader
+    print("\nCreating DataLoader...")
     dataloaders = get_dataloaders(
         data_dir=data_dir,
         batch_size=args.batch_size,
         num_workers=args.num_workers
     )
 
-    # 모델 생성
-    print(f"\n모델 생성 중: {args.model}")
+    # Create model
+    print(f"\nCreating model: {args.model}")
     model = get_model(
         args.model,
         num_classes=2,
@@ -397,7 +397,7 @@ def main():
         verbose=True
     )
 
-    # 학습
+    # Training
     history = train_model(
         model=model,
         dataloaders=dataloaders,
@@ -410,25 +410,25 @@ def main():
         model_name=args.model
     )
 
-    # 결과 저장
-    print("\n결과 저장 중...")
+    # Save results
+    print("\nSaving results...")
 
-    # 학습 곡선 그래프
+    # Training curves plot
     plot_path = results_dir / 'figures' / f'{args.model}_training_curves.png'
     plot_path.parent.mkdir(parents=True, exist_ok=True)
     plot_training_history(history, plot_path)
 
-    # 학습 기록 CSV
+    # Training history CSV
     csv_path = results_dir / 'metrics' / f'{args.model}_training_history.csv'
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     save_training_history(history, csv_path)
 
     print("\n" + "="*60)
-    print("모든 작업 완료!")
+    print("All tasks completed!")
     print("="*60)
-    print(f"모델 저장: models/{args.model}_best.pth")
-    print(f"학습 곡선: {plot_path}")
-    print(f"학습 기록: {csv_path}")
+    print(f"Model saved: models/{args.model}_best.pth")
+    print(f"Training curves: {plot_path}")
+    print(f"Training history: {csv_path}")
     print("="*60)
 
 

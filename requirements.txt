@@ -1,7 +1,4 @@
-# ============================================
 # AI Image Detection Project - Requirements
-# ============================================
-
 # Deep Learning Framework
 torch>=2.0.0
 torchvision>=0.15.0
@@ -33,7 +30,7 @@ jupyter>=1.0.0
 ipykernel>=6.25.0
 notebook>=7.0.0
 
-# TensorBoard (학습 모니터링)
+# TensorBoard
 tensorboard>=2.13.0
 
 # Model Interpretation
@@ -43,9 +40,9 @@ grad-cam>=1.4.0
 python-dotenv>=1.0.0
 pyyaml>=6.0
 
-# Optional: Kaggle API (데이터셋 다운로드용)
+# Kaggle API
 kaggle>=1.5.0
 
-# Testing (선택사항)
+# Testing
 pytest>=7.4.0
 pytest-cov>=4.1.0
