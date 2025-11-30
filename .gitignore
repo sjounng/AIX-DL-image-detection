@@ -210,20 +210,20 @@ __marimo__/
 # Project Specific - AI Image Detection
 # ============================================
 
-# Dataset - 용량이 큰 이미지 파일들
+# Dataset - Large image files (40,000 images total)
 data/raw/FAKE/
 data/raw/REAL/
 data/raw/*.zip
 data/raw/*.tar.gz
 data/processed/
 
-# 다운로드한 압축 파일
+# Downloaded archive files
 archive.zip
 *.zip
 *.tar.gz
 *.rar
 
-# 학습된 모델 파일 (용량이 큼)
+# Trained model files (large checkpoint files ~47MB each)
 models/*.pth
 models/*.pt
 models/*.h5
@@ -232,22 +232,23 @@ models/*.ckpt
 models/*.pb
 models/*.onnx
 
-# TensorBoard 로그
+# TensorBoard logs
 runs/
 logs/
 tensorboard/
 
-# 결과 파일 중 큰 파일들
+# Generated result files
 results/figures/*.png
 results/figures/*.jpg
 results/figures/*.pdf
 results/metrics/*.csv
 results/reports/*.pdf
+results/predictions/
 
-# Jupyter Notebook 체크포인트
+# Jupyter Notebook checkpoints
 **/.ipynb_checkpoints/
 
-# macOS 시스템 파일
+# macOS system files
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -255,16 +256,19 @@ results/reports/*.pdf
 # Thumbnails
 ._*
 
-# Kaggle 인증
+# Kaggle credentials
 .kaggle/
 kaggle.json
 
-# 임시 파일
+# Temporary files
 *.tmp
 *.temp
 *~
 
-# 실험 결과 캐시
+# Experiment result cache
 .cache/
 *.pkl
 *.pickle
+
+# Claude Code configuration
+.claude
