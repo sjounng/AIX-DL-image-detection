@@ -96,9 +96,9 @@ data/raw/
    - Random Rotation (±15도)
    - Random Brightness/Contrast 조정
 4. **데이터 분할**: 
-   - Training: 70%
-   - Validation: 15%
-   - Test: 15%
+   - Training: 60%
+   - Validation: 20%
+   - Test: 20%
 
 ### 데이터 다운로드 및 준비
 
@@ -129,28 +129,22 @@ unzip my-sampled-art-dataset-40k.zip -d ./data/raw
 #### ✅ 완료된 전처리 결과
 
 **데이터 분할 현황:**
-- **Training Set**: 28,000장 (70%)
-  - FAKE: 14,000장
-  - REAL: 14,000장
-- **Validation Set**: 6,000장 (15%)
-  - FAKE: 3,000장
-  - REAL: 3,000장
-- **Test Set**: 6,000장 (15%)
-  - FAKE: 3,000장
-  - REAL: 3,000장
+- **Training Set**: 24,000장 (60%)
+  - FAKE: 12,000장
+  - REAL: 12,000장
+- **Validation Set**: 8,000장 (20%)
+  - FAKE: 4,000장
+  - REAL: 4,000장
+- **Test Set**: 8,000장 (20%)
+  - FAKE: 4,000장
+  - REAL: 4,000장
 
 **전처리 파이프라인:**
 - 이미지 크기: 224x224 픽셀로 자동 리사이즈
 - 정규화: ImageNet 평균/표준편차 사용
 - 데이터 증강 (Training만):
   - Random Horizontal Flip (p=0.5)
-  - Random Rotation (±15도)
   - Color Jitter (brightness, contrast, saturation, hue)
-
-**전처리 결과 파일:**
-- `data/processed/train.csv` - 28,000개 샘플
-- `data/processed/val.csv` - 6,000개 샘플
-- `data/processed/test.csv` - 6,000개 샘플
 
 ---
 
@@ -162,7 +156,7 @@ unzip my-sampled-art-dataset-40k.zip -d ./data/raw
 
 #### A. Convolutional Neural Network (CNN)
 - **기본 CNN 모델**: 커스텀 아키텍처로 베이스라인 성능 측정
-- **구조**: Conv2D → ReLU → MaxPooling → Flatten → Dense → Softmax
+- **구조**: Conv2D(32) → Conv2D(64) → Conv2D(128) → Dense(512) → Output(2)
 
 #### B. 전이학습 (Transfer Learning) 모델들
 1. **ResNet50**
@@ -173,9 +167,9 @@ unzip my-sampled-art-dataset-40k.zip -d ./data/raw
    - 효율적인 모델 스케일링
    - 적은 파라미터로 높은 성능
 
-3. **VGG16**
-   - 단순하지만 강력한 아키텍처
-   - 전이학습 벤치마크로 활용
+3.  **ConvNeXt (Tiny)**
+   - CNN의 장점과 Transformer의 설계 철학을 결합
+   - 최신 아키텍처 성능 비교
 
 #### C. Vision Transformer (ViT) - 선택사항
 - Transformer 구조를 이미지 분류에 적용
@@ -207,9 +201,9 @@ AI 생성 이미지와 실제 이미지를 구분하는 주요 특징:
 2. 모델 아키텍처 정의
    ↓
 3. 손실 함수: Binary Cross-Entropy
-   최적화: Adam Optimizer (lr=0.001)
+   최적화: SGD Optimizer (lr=0.001)
    ↓
-4. 학습 (Epochs: 50, Batch size: 32)
+4. 학습 (Epochs: 5, Batch size: 32)
    - Early Stopping (patience=5)
    - ReduceLROnPlateau
    ↓
@@ -224,8 +218,8 @@ AI 생성 이미지와 실제 이미지를 구분하는 주요 특징:
 |---------|-----|
 | Learning Rate | 0.001 (초기값) |
 | Batch Size | 32 |
-| Epochs | 50 (max) |
-| Optimizer | Adam |
+| Epochs | 5 |
+| Optimizer | SGD |
 | Loss Function | Binary Cross-Entropy |
 | Dropout Rate | 0.5 |
 
@@ -246,75 +240,36 @@ AI 생성 이미지와 실제 이미지를 구분하는 주요 특징:
 
 #### ✅ 테스트 세트 평가 결과
 
-| 모델 | Test Accuracy | Precision | Recall | F1-Score | ROC AUC | 훈련 Epoch |
-|------|--------------|-----------|--------|----------|---------|-----------|
-| **EfficientNetB0** | **98.97%** | **99.13%** | **98.80%** | **98.96%** | **0.9996** | 24 (Early Stop) |
-| **ResNet50** | **98.78%** | **99.13%** | **98.43%** | **98.78%** | **0.9993** | 34 (Early Stop) |
-| SimpleCNN | TBD | TBD | TBD | TBD | TBD | - |
-| VGG16 | TBD | TBD | TBD | TBD | TBD | - |
+| 모델 | Accuracy | Precision | Recall | F1-Score | ROC AUC | 훈련 Epoch | Training Time |
+|------|--------------|-----------|--------|----------|---------|-----------|-------------|
+| SimpleCNN | 0.8347 | 0.8074 | 0.8793 | 0.8418 | 0.91 | 51m 49s |
+| EfficientNet | 0.9823 | 0.9796 | 0.9740 | 0.9768 | $\approx$ 1 | 46m 28s |
+| ConvNeXt | 0.9780 | **0.9946** | 0.9613 | 0.9776 | $\approx$ 1 | 61m 37s |
+| ResNet50 | **0.9858** | 0.9838 | **0.9878** | **0.9858** | $\approx$ 1 | 43m 47s |
 
-**주요 발견:**
-- EfficientNetB0가 가장 높은 성능 달성 (98.97% 정확도)
-- 두 모델 모두 ROC AUC 0.999 이상으로 우수한 판별 능력
-- EfficientNetB0가 더 적은 에폭으로 더 높은 성능 달성 (24 vs 34)
-- Early Stopping이 효과적으로 작동하여 과적합 방지
 
-**클래스별 상세 성능 (EfficientNetB0):**
-- FAKE 이미지: Precision 98.80%, Recall 99.13%, F1 98.97%
-- REAL 이미지: Precision 99.13%, Recall 98.80%, F1 98.96%
+### 2. Confusion Matrix
 
-### 2. 학습 곡선 (Learning Curves)
+#### 혼동 행렬 분석
 
-#### ✅ EfficientNetB0 학습 결과
+* **True Negative (TN):** FAKE를 FAKE로 정확히 분류
+* **False Positive (FP):** REAL을 FAKE로 잘못 분류
+* **False Negative (FN):** FAKE를 REAL로 잘못 분류
+* **True Positive (TP):** REAL을 REAL로 정확히 분류
 
-**최종 성능 (Epoch 24):**
-- Train Loss: 0.0136 | Train Acc: 99.46%
-- Val Loss: 0.0210 | Val Acc: 99.32%
-- Learning Rate: 1e-05 (초기 0.001에서 감소)
 
-**학습 과정:**
-- Epoch 1-7: LR 0.001로 빠른 수렴
-- Epoch 8: LR 0.0001로 감소 (ReduceLROnPlateau)
-- Epoch 23: LR 1e-05로 추가 감소
-- Epoch 24: Early Stopping 발동 (최고 성능)
+| 모델 | TN | FP | FN | TP |
+|------|--------------|-----------|--------|----------|
+| SimpleCNN | 3,517 | 839 | 483 | 3,161 |
+| EfficientNet | 3,896 | 81 | 104 | 3,919 |
+| ConvNeXt | 3,845 | **21** | 155 | **3,979** |
+| ResNet50 | **3,951** | 65 | **49** | 3,935 |
 
-**생성된 결과 파일:**
-- `results/figures/efficientnet_b0_training_curves.png` - 학습 곡선 그래프
-- `results/figures/efficientnet_b0_confusion_matrix.png` - 혼동 행렬
-- `results/figures/efficientnet_b0_roc_curve.png` - ROC 곡선 (AUC=0.9996)
-- `results/metrics/efficientnet_b0_training_history.csv` - 전체 학습 히스토리
 
-### 3. Confusion Matrix
-
-#### ✅ EfficientNetB0 혼동 행렬 분석
-
-테스트 세트 6,000개 이미지 중:
-- **True Negative (TN)**: 2,974개 - FAKE를 FAKE로 정확히 분류
-- **False Positive (FP)**: 26개 - REAL을 FAKE로 잘못 분류
-- **False Negative (FN)**: 36개 - FAKE를 REAL로 잘못 분류
-- **True Positive (TP)**: 2,964개 - REAL을 REAL로 정확히 분류
-
-**오분류율:**
-- 전체 6,000개 중 62개 오분류 (1.03%)
-- FAKE 정확도: 99.13%
-- REAL 정확도: 98.80%
-
-### 4. 시각화 분석
-
-#### A. Grad-CAM (Gradient-weighted Class Activation Mapping)
-- 모델이 이미지의 어느 부분을 보고 판단하는지 시각화
-- AI 생성 이미지의 특징적인 영역 탐지
-
-#### B. 오분류 사례 분석
-- False Positive: 실제 이미지를 AI 생성으로 잘못 분류
-- False Negative: AI 생성 이미지를 실제로 잘못 분류
-- 각 사례에 대한 원인 분석
-
-### 5. 통계 분석
-
-- 클래스별 정확도 분포
-- 이미지 특성에 따른 성능 차이
-- 신뢰도(Confidence) 분석
+* **TN:** **ResNet50**이 가장 많은 FAKE 데이터를 정확하게 잡아냈습니다.
+* **FP:** **ConvNeXt**가 REAL을 FAKE로 오진한 경우가 가장 적었습니다. 
+* **FN:** **ResNet50**이 FAKE를 놓친 경우가 가장 적었습니다. 
+* **TP:** **ConvNeXt**가 REAL 데이터를 가장 잘 보존했습니다.
 
 ---
 
@@ -408,52 +363,39 @@ AI 생성 이미지와 실제 이미지를 구분하는 주요 특징:
 
 ```
 ai-image-detection/
-├── README.md                 # 프로젝트 문서 (현재 파일)
+├── README.md                 # 프로젝트 문서
 ├── requirements.txt          # 필요한 패키지 목록
 ├── .gitignore               # Git 제외 파일 목록
 │
-├── data/                    # 데이터셋 (용량 큰 파일은 .gitignore)
+├── data/                    # 데이터셋
 │   ├── raw/                 # 원본 데이터
 │   ├── processed/           # 전처리된 데이터
-│   └── README.md            # 데이터 설명
+│   └── README.md
 │
 ├── notebooks/               # Jupyter 노트북
 │   ├── 01_EDA.ipynb        # 탐색적 데이터 분석
-│   ├── 02_preprocessing.ipynb
-│   ├── 03_baseline_model.ipynb
-│   └── 04_final_model.ipynb
+│   └── 02_preprocessing.ipynb
 │
 ├── src/                     # 소스 코드
-│   ├── __init__.py         # 패키지 초기화
-│   ├── data_loader.py      # 데이터 로딩 및 전처리
-│   ├── models.py           # 모델 정의 (ResNet50, EfficientNetB0, VGG16, SimpleCNN)
+│   ├── __init__.py
+│   ├── data_loader.py      # 데이터 로딩
+│   ├── models.py           # 모델 정의 (ResNet50, EfficientNet, ConvNeXt, SimpleCNN)
 │   ├── preprocessing.py    # 데이터 전처리 및 분할
 │   ├── train.py            # 학습 스크립트
 │   ├── evaluate.py         # 평가 스크립트
-│   └── inference.py        # 이미지 판별 스크립트
+│   └── inference.py        # 추론 스크립트
 │
 ├── models/                  # 저장된 모델 체크포인트
-│   ├── efficientnet_b0_best.pth  # EfficientNetB0 (98.97% 정확도)
-│   └── resnet50_best.pth         # ResNet50 (98.78% 정확도)
+│   ├── resnet50_best.pth
+│   └── ...
 │
 ├── results/                 # 결과 파일
-│   ├── figures/            # 그래프 및 시각화
-│   │   ├── efficientnet_b0_training_curves.png
-│   │   ├── efficientnet_b0_confusion_matrix.png
-│   │   ├── efficientnet_b0_roc_curve.png
-│   │   ├── resnet50_training_curves.png
-│   │   ├── resnet50_confusion_matrix.png
-│   │   └── resnet50_roc_curve.png
+│   ├── figures/            # 그래프 및 시각화 (CM, ROC Curve)
 │   ├── metrics/            # 평가 지표 CSV
-│   │   ├── efficientnet_b0_training_history.csv
-│   │   ├── efficientnet_b0_test_results.csv
-│   │   ├── resnet50_training_history.csv
-│   │   └── resnet50_test_results.csv
 │   └── predictions/        # Inference 결과
-│       └── efficientnet_b0_predictions.csv
 │
 └── docs/                    # 추가 문서
-    └── presentation.pdf    # 발표 자료 (선택사항)
+    └── presentation.pdf    # 발표 자료
 ```
 
 ---
@@ -493,43 +435,43 @@ python src/preprocessing.py
 ### 4. 모델 학습
 
 ```bash
-# EfficientNetB0 학습 (권장)
-python src/train.py --model efficientnet_b0 --epochs 50 --batch-size 32 --num-workers 0
+# EfficientNet 학습
+python src/train.py --model_name efficientnet --epochs 50 --batch_size 32 
 
 # ResNet50 학습
-python src/train.py --model resnet50 --epochs 50 --batch-size 32 --num-workers 0
+python src/train.py --model_name resnet50 --epochs 50 --batch_size 32
 
-# VGG16 학습
-python src/train.py --model vgg16 --epochs 50 --batch-size 32 --num-workers 0
+# ConvNeXt   학습
+python src/train.py --model_name convnext --epochs 50 --batch_size 32
 
 # SimpleCNN 학습
-python src/train.py --model simple_cnn --epochs 50 --batch-size 32 --num-workers 0
+python src/train.py --model_name simplecnn --epochs 50 --batch_size 32
 ```
 
 ### 5. 모델 평가
 
 ```bash
-# EfficientNetB0 평가
-python src/evaluate.py --model efficientnet_b0 --batch-size 32 --num-workers 0
+# EfficientNet 평가
+python src/evaluate.py --model_name efficientnet --batch_size 32
 
 # ResNet50 평가
-python src/evaluate.py --model resnet50 --batch-size 32 --num-workers 0
-```
+python src/evaluate.py --model_name resnet50 --batch_size 32
+```   
 
 ### 6. 이미지 판별 (Inference)
 
 ```bash
 # 단일 이미지 판별
-python src/inference.py --model efficientnet_b0 --image "path/to/image.jpg"
+python src/inference.py --model_name efficientnet --image "path/to/image.jpg"
 
 # 여러 이미지 판별
-python src/inference.py --model efficientnet_b0 --image "img1.jpg" "img2.jpg" "img3.jpg"
+python src/inference.py --model_name efficientnet --image "img1.jpg" "img2.jpg" "img3.jpg"
 
 # 폴더 내 모든 이미지 판별
-python src/inference.py --model efficientnet_b0 --image-dir "path/to/images"
+python src/inference.py --model_name efficientnet --image-dir "path/to/images"
 
 # 결과를 CSV로 저장
-python src/inference.py --model efficientnet_b0 --image "image.jpg" --output "results/my_predictions.csv"
+python src/inference.py --model_name efficientnet --image "image.jpg" --output "results/my_predictions.csv"
 ```
 
 ---
@@ -579,4 +521,4 @@ python src/inference.py --model efficientnet_b0 --image "image.jpg" --output "re
 
 ---
 
-**Last Updated**: 2025-11-30
+**Last Updated**: 2025-12-02
