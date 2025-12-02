@@ -240,7 +240,7 @@ AI 생성 이미지와 실제 이미지를 구분하는 주요 특징:
 
 #### ✅ 테스트 세트 평가 결과
 
-| 모델 | Accuracy | Precision | Recall | F1-Score | ROC AUC | 훈련 Epoch | Training Time |
+| 모델 | Accuracy | Precision | Recall | F1-Score | ROC AUC | Training Time  |
 |------|--------------|-----------|--------|----------|---------|-----------|-------------|
 | SimpleCNN | 0.8347 | 0.8074 | 0.8793 | 0.8418 | 0.91 | 51m 49s |
 | EfficientNet | 0.9823 | 0.9796 | 0.9740 | 0.9768 | $\approx$ 1 | 46m 28s |
