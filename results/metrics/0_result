@@ -1,0 +1,11 @@
+                                                       
+Confusion Matrix
+ [[2950   22]
+ [  16 3012]]
+
+Test Accuracy : 0.9937
+Precision     : 0.9927
+Recall        : 0.9947
+F1            : 0.9937
+ROC-AUC       : 0.9995
+
