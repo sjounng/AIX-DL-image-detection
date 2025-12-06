@@ -1,0 +1,2 @@
+model,test_loss,test_accuracy,test_precision,test_recall,test_f1,roc_auc
+convnext,0.0,0.978,0.9946,0.9613,0.9776,1.0

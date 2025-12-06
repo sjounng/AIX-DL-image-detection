@@ -21,9 +21,9 @@ figures_dir = Path(__file__).parent / 'figures'
 figures_dir.mkdir(exist_ok=True)
 
 # Model names and colors
-models = ['simple_cnn', 'resnet50', 'efficientnet_b0', 'vgg16']
-model_labels = ['SimpleCNN', 'ResNet50', 'EfficientNetB0', 'VGG16']
-colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A']
+models = ['simple_cnn', 'resnet50', 'efficientnet_b0', 'vgg16', 'convnext', 'ensemble_soft', 'ensemble_hard']
+model_labels = ['SimpleCNN', 'ResNet50', 'EfficientNetB0', 'VGG16', 'ConvNeXt', 'Ensemble (Soft)', 'Ensemble (Hard)']
+colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#9B59B6', '#2ecc71', '#27ae60']
 
 # Load all test results
 results = []
@@ -50,14 +50,15 @@ bars = ax1.bar(model_labels, results_df['test_accuracy'] * 100, color=colors, al
 ax1.set_ylabel('Accuracy (%)', fontsize=12, fontweight='bold')
 ax1.set_title('Model Accuracy Comparison', fontsize=14, fontweight='bold', pad=20)
 ax1.set_ylim(95, 100)
+ax1.set_xticklabels(model_labels, rotation=45, ha='right', fontsize=9)
 ax1.grid(axis='y', alpha=0.3)
 
 # Add value labels on bars
 for i, (bar, val) in enumerate(zip(bars, results_df['test_accuracy'] * 100)):
     height = bar.get_height()
     ax1.text(bar.get_x() + bar.get_width()/2., height + 0.1,
-             f'{val:.2f}%', ha='center', va='bottom', fontweight='bold', fontsize=10)
-    if i == 2:  # Highlight best model (EfficientNetB0)
+             f'{val:.2f}%', ha='center', va='bottom', fontweight='bold', fontsize=9)
+    if model_labels[i] == 'Ensemble (Soft)':  # Highlight best model
         ax1.text(bar.get_x() + bar.get_width()/2., height - 0.5,
                  '⭐', ha='center', va='top', fontsize=20)
 
@@ -86,7 +87,8 @@ ax3 = plt.subplot(2, 3, 3)
 bars = ax3.bar(model_labels, results_df['roc_auc'], color=colors, alpha=0.8, edgecolor='black')
 ax3.set_ylabel('ROC AUC', fontsize=12, fontweight='bold')
 ax3.set_title('ROC AUC Comparison', fontsize=14, fontweight='bold', pad=20)
-ax3.set_ylim(0.99, 1.0)
+ax3.set_ylim(0.995, 1.001)
+ax3.set_xticklabels(model_labels, rotation=45, ha='right', fontsize=9)
 ax3.grid(axis='y', alpha=0.3)
 
 # Add value labels
@@ -100,6 +102,7 @@ ax4 = plt.subplot(2, 3, 4)
 bars = ax4.bar(model_labels, results_df['test_loss'], color=colors, alpha=0.8, edgecolor='black')
 ax4.set_ylabel('Test Loss', fontsize=12, fontweight='bold')
 ax4.set_title('Test Loss Comparison (Lower is Better)', fontsize=14, fontweight='bold', pad=20)
+ax4.set_xticklabels(model_labels, rotation=45, ha='right', fontsize=9)
 ax4.grid(axis='y', alpha=0.3)
 
 # Add value labels
@@ -134,15 +137,15 @@ ax5.set_xticks(angles[:-1])
 ax5.set_xticklabels(metrics, fontsize=10)
 ax5.set_ylim(0.95, 1.0)
 ax5.set_title('Overall Performance Radar Chart', fontsize=14, fontweight='bold', pad=20)
-ax5.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=9)
+ax5.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=7, ncol=1)
 ax5.grid(True)
 
 # 6. Model Efficiency (Accuracy vs Parameters)
 ax6 = plt.subplot(2, 3, 6)
 
 # Model parameters (approximate)
-params = [2, 23, 4, 134]  # in millions
-param_sizes = [p * 10 for p in params]  # Scale for bubble size
+params = [2, 23, 4, 134, 28, 27, 27]  # in millions: SimpleCNN, ResNet50, EfficientNetB0, VGG16, ConvNeXt, Ensemble(Soft), Ensemble(Hard)
+param_sizes = [p * 5 for p in params]  # Scale for bubble size
 
 scatter = ax6.scatter(params, results_df['test_accuracy'] * 100,
                       s=param_sizes, c=colors, alpha=0.6, edgecolors='black', linewidth=2)
@@ -159,8 +162,8 @@ ax6.grid(alpha=0.3)
 ax6.set_xscale('log')
 ax6.set_ylim(96.5, 99.5)
 
-# Add annotation for best efficiency
-best_idx = 2  # EfficientNetB0
+# Add annotation for best efficiency (EfficientNetB0)
+best_idx = model_labels.index('EfficientNetB0')
 ax6.annotate('Best Efficiency ⭐',
              xy=(params[best_idx], results_df['test_accuracy'].iloc[best_idx] * 100),
              xytext=(20, -20), textcoords='offset points',
@@ -179,7 +182,7 @@ print(f"Comprehensive comparison saved: {output_path}")
 plt.close()
 
 # Create summary table figure
-fig, ax = plt.subplots(figsize=(14, 6))
+fig, ax = plt.subplots(figsize=(14, 10))
 ax.axis('tight')
 ax.axis('off')
 
@@ -187,9 +190,9 @@ ax.axis('off')
 table_data = []
 table_data.append(['Rank', 'Model', 'Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC AUC', 'Test Loss'])
 
-# Sort by accuracy
-sorted_results = results_df.sort_values('test_accuracy', ascending=False)
-ranks = ['🥇', '🥈', '🥉', '4']
+# Sort by F1 score (primary metric)
+sorted_results = results_df.sort_values('test_f1', ascending=False)
+ranks = ['🥇', '🥈', '🥉', '4', '5', '6', '7']
 
 for rank, (idx, row) in zip(ranks, sorted_results.iterrows()):
     table_data.append([
@@ -217,7 +220,7 @@ for i in range(8):
     cell.set_text_props(weight='bold', color='white')
 
 # Style data rows
-for i in range(1, 5):
+for i in range(1, 8):  # 7 models + header
     for j in range(8):
         cell = table[(i, j)]
         if i == 1:  # Best model

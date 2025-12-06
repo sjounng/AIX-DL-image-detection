@@ -31,6 +31,7 @@ def load_all_results(metrics_dir):
         'resnet50_test_results.csv',
         'efficientnet_b0_test_results.csv',
         'vgg16_test_results.csv',
+        'convnext_test_results.csv',
         'ensemble_soft_test_results.csv',
         'ensemble_hard_test_results.csv'
     ]
