@@ -492,9 +492,8 @@ EfficientNetB0 + ResNet50 조합으로 두 가지 앙상블 방식을 구현:
 ### 🎥 프로젝트 발표 영상 (5-10분)
 
 <!-- 영상 제작 후 링크 추가 -->
-[![프로젝트 발표 영상](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID)
+[![프로젝트 발표 영상](https://img.youtube.com/vi/O5qpDoHcEqI/0.jpg)](https://youtu.be/O5qpDoHcEqI)
 
-> **Note**: YouTube 업로드 후 링크를 업데이트해주세요.
 
 **영상 내용**:
 - 프로젝트 소개 및 동기
