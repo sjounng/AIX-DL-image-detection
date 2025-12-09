@@ -1,0 +1,98 @@
+================================================================================
+AI 이미지 판별 프로젝트 - 빠른 시작 가이드 (Quick Start)
+================================================================================
+
+📌 1단계: CUDA 설치 (NVIDIA GPU 있는 경우)
+================================================================================
+# CUDA 11.8 다운로드
+https://developer.nvidia.com/cuda-11-8-0-download-archive
+→ Windows > x86_64 > 설치 후 재부팅
+
+
+📌 2단계: 프로젝트 설정
+================================================================================
+# Git 클론
+git clone [GitHub URL]
+cd AIX-DL-image-detection
+git checkout dev
+
+# 가상환경 생성 및 활성화
+python -m venv venv
+venv\Scripts\activate
+
+
+📌 3단계: PyTorch 설치 (GPU 버전)
+================================================================================
+# CUDA 11.8용 (권장)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# 확인
+python -c "import torch; print(f'CUDA: {torch.cuda.is_available()}')"
+
+
+📌 4단계: 패키지 설치
+================================================================================
+pip install -r requirements.txt
+
+
+📌 5단계: 데이터셋 다운로드
+================================================================================
+# Kaggle 로그인 후:
+https://www.kaggle.com/datasets/mkevinrinaldi/my-sampled-art-dataset-40k
+→ Download 클릭
+→ archive.zip을 data/raw/ 폴더에 압축 해제
+
+# 결과: data/raw/FAKE, data/raw/REAL 폴더 생성됨
+
+
+📌 6단계: 모델 학습 시작!
+================================================================================
+python src/train.py --model resnet50 --epochs 50 --batch-size 32
+
+
+================================================================================
+🔥 핵심 명령어 모음
+================================================================================
+
+# GPU 확인
+nvidia-smi
+
+# PyTorch CUDA 확인
+python -c "import torch; print(torch.cuda.is_available())"
+
+# Jupyter Notebook 실행
+jupyter notebook
+
+# TensorBoard 실행
+tensorboard --logdir=runs
+
+# 모델 학습 (기본)
+python src/train.py
+
+# 모델 평가
+python src/evaluate.py --model-path models/best_model.pth
+
+
+================================================================================
+❗ 문제 발생 시
+================================================================================
+
+1. CUDA 인식 안 됨
+   → PyTorch 재설치:
+     pip uninstall torch torchvision torchaudio
+     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+2. 메모리 부족 (Out of Memory)
+   → Batch size 줄이기: --batch-size 16
+
+3. 데이터셋 경로 에러
+   → data/raw/FAKE, data/raw/REAL 폴더 확인
+
+4. 패키지 설치 에러
+   → Visual C++ Build Tools 설치:
+     https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+
+================================================================================
+자세한 내용은 SETUP_WINDOWS.txt 파일 참고!
+================================================================================

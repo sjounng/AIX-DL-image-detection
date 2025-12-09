@@ -320,13 +320,8 @@ EfficientNetB0 + ResNet50 조합으로 두 가지 앙상블 방식을 구현:
 
 ## V. Related Work
 
-### 1. 참고 논문 및 연구
 
-- [논문 제목 1] - 출처 링크
-- [논문 제목 2] - 출처 링크
-- *(프로젝트 진행 중 추가 예정)*
-
-### 2. 사용한 라이브러리 및 도구
+### 1. 사용한 라이브러리 및 도구
 
 #### 딥러닝 프레임워크
 - **PyTorch** / **TensorFlow+Keras**: 모델 구현 및 학습
@@ -347,142 +342,65 @@ EfficientNetB0 + ResNet50 조합으로 두 가지 앙상블 방식을 구현:
 - **scikit-learn**: 평가 지표 계산
 - **Kaggle API**: 데이터셋 다운로드
 
-### 3. 참고 블로그 및 튜토리얼
+### 2. 참고 블로그 및 튜토리얼
 
 - [Kaggle - Image Classification Tutorials](https://www.kaggle.com/learn/computer-vision)
 - [PyTorch Image Classification Tutorial](https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html)
 - [Transfer Learning Guide](https://www.tensorflow.org/tutorials/images/transfer_learning)
-- *(추가 자료는 프로젝트 진행 중 업데이트)*
 
-### 4. 기존 연구 및 Kaggle 대회
-
-- AI Generated Image Detection 관련 Kaggle 대회
-- 유사 프로젝트 및 솔루션 분석
 
 ---
 
 ## VI. Conclusion
 
-### 프로젝트 결과 요약
+본 프로젝트는 AI 생성 이미지와 실제 이미지를 구분하는 딥러닝 시스템을 구축하여 **99.20% 정확도**를 달성했습니다.
 
-본 프로젝트에서는 AI 생성 이미지와 실제 이미지를 구분하는 딥러닝 모델을 성공적으로 구현하고 평가했습니다.
+### 핵심 성과
 
-**총 7개 모델을 학습 및 평가하여 최적의 솔루션을 도출했습니다.**
+**1. 최고 성능 달성**
+- **Ensemble (Soft Voting): 99.20%** 정확도 (6,000개 테스트 이미지 중 5,952개 정확 분류)
+- EfficientNetB0 + ResNet50 조합으로 개별 모델 대비 +0.23%p 향상
+- ROC AUC 0.9996으로 거의 완벽한 분류 성능
 
-#### 주요 성과
+**2. 효율적인 단일 모델**
+- **EfficientNetB0: 98.97%** 정확도 (단일 모델 중 최고)
+- 약 4M 파라미터로 VGG16 대비 1/33 크기, 앙상블 대비 1/7 크기
+- 실시간 처리 가능한 경량 모델
 
-**1. 최고 성능 모델: Ensemble (Soft Voting)**
-- **Test Accuracy: 99.20%** - 6,000개 테스트 이미지 중 5,952개 정확 분류
-- **ROC AUC: 0.9996** - 거의 완벽한 분류 성능
-- **앙상블 효과**: 개별 모델 대비 +0.23%p 성능 향상 (EfficientNetB0 98.97% → 99.20%)
-- **구성**: EfficientNetB0 + ResNet50 (상위 2개 모델 조합)
-- **균형잡힌 성능**: Precision 99.43%, Recall 98.97%
+**3. 체계적인 모델 비교**
+- 7개 모델 학습 및 평가 완료 (SimpleCNN, ResNet50, EfficientNetB0, VGG16, ConvNeXt, Ensemble Soft/Hard)
+- 전이학습 모델이 SimpleCNN 대비 1.5%p+ 높은 성능 입증
+- 모델 크기와 성능이 비례하지 않음 확인 (EfficientNetB0 > ResNet50 > VGG16)
 
-**2. 단일 모델 최고 성능: EfficientNetB0**
-- **Test Accuracy: 98.97%** - 단일 모델 중 최고 성능
-- **효율성**: 약 4M 파라미터로 최고 성능 달성 (VGG16 대비 1/33 크기, 앙상블 대비 1/7 크기)
-- **실용성**: 낮은 메모리 사용량으로 실시간 처리 가능
+### 주요 발견
 
-**3. 모델 비교 분석 완료**
-- 7가지 모델 학습 및 평가 완료 (SimpleCNN, ResNet50, EfficientNetB0, VGG16, ConvNeXt, Ensemble Soft, Ensemble Hard)
-- 전이학습의 효과 입증: 사전학습 모델들이 SimpleCNN 대비 1.5%p+ 높은 성능
-- 앙상블 학습 효과 입증: Soft Voting이 Hard Voting보다 우수한 성능 (99.20% vs 98.75%)
-- 모델 크기와 성능이 비례하지 않음: EfficientNetB0 > ResNet50 > VGG16 (효율성 순)
-- ConvNeXt: 높은 Precision (99.46%)으로 False Positive 최소화에 강점
-
-**4. 실용적 활용 가능성**
-- **Ensemble (Soft Voting) 99.20%**: 최고 정확도로 실제 환경에서 활용 가능
-- 6,000개 테스트 이미지 중 5,952개 정확 분류 (오류율 0.8%)
-- 평가 시스템 구현으로 즉시 사용 가능
-- 단일 모델 사용 시 빠른 추론 속도 옵션 제공
-
-#### 주요 발견 사항
-
-1. **전이학습의 중요성**
-   - ImageNet 사전학습 가중치가 AI 이미지 판별에도 매우 효과적
-   - 적은 데이터로도 높은 성능 달성 가능
-
-2. **모델 효율성**
-   - EfficientNet의 Compound Scaling 기법이 효과적
-   - 파라미터 수가 많다고 반드시 성능이 좋은 것은 아님
-
-3. **클래스 균형**
-   - FAKE/REAL 클래스 간 성능 차이 < 0.5%p로 매우 균형잡힌 분류
-   - 데이터 증강 및 균형잡힌 데이터셋의 효과
-
-4. **AI 생성 이미지의 특징**
-   - 딥러닝 모델이 인간이 감지하기 어려운 패턴 학습
-   - 픽셀 수준의 미세한 차이로도 98%+ 정확도 달성 가능
-
-5. **앙상블 학습의 효과**
-   - 상위 2개 모델(EfficientNetB0 + ResNet50) 조합으로 성능 향상
-   - Soft Voting(확률 평균)이 Hard Voting(다수결)보다 우수
-   - 개별 모델의 약점을 상호 보완하여 더 안정적인 예측
+1. **전이학습의 효과**: ImageNet 사전학습 가중치가 AI 이미지 판별에도 매우 효과적
+2. **효율성의 중요성**: EfficientNet의 Compound Scaling 기법이 파라미터 대비 최고 성능 달성
+3. **앙상블의 가치**: Soft Voting이 Hard Voting보다 우수 (99.20% vs 98.75%)
+4. **균형잡힌 분류**: FAKE/REAL 클래스 간 성능 차이 < 0.5%p로 편향 없는 모델
 
 ### 한계점 및 개선 방향
 
-#### 한계점
-1. **데이터셋 특성**
-   - 예술 작품 위주 데이터셋으로, 일반 사진이나 다른 도메인에서의 성능은 검증 필요
-   - 특정 AI 생성 도구(Stable Diffusion, Latent Diffusion)에 제한
+**한계점:**
+- 예술 작품 위주 데이터셋으로 일반 사진/다른 도메인 검증 필요
+- 최신 생성 모델(DALL-E 3, Midjourney v6) 미포함
+- 모델 판단 근거의 설명 가능성 부족
 
-2. **최신 생성 모델 대응**
-   - DALL-E 3, Midjourney v6 등 최신 모델 생성 이미지는 미포함
-   - 생성 기술 발전에 따른 지속적인 모델 업데이트 필요
+**개선 방향:**
+- 다양한 도메인 데이터 확장 및 최신 AI 생성 도구 이미지 추가
+- Grad-CAM/LIME 등을 통한 설명 가능한 AI 구현
+- Gradio/Streamlit 기반 웹 인터페이스 개발
+- 모델 양자화를 통한 모바일 환경 최적화
 
-3. **설명 가능성**
-   - 모델이 어떤 특징을 보고 판단하는지 완전히 이해하기 어려움
-   - Grad-CAM 등 시각화 기법 추가 필요
+### 최종 권장
 
-#### 개선 방향
-1. **데이터 확장**
-   - 다양한 도메인(풍경, 인물, 사물 등) 이미지 추가
-   - 최신 AI 생성 도구의 이미지 포함
+| 사용 목적 | 권장 모델 | 정확도 | 특징 |
+|----------|----------|--------|------|
+| **최고 정확도 필요** | **Ensemble (Soft)** | **99.20%** | 프로덕션 환경 최적 |
+| **빠른 추론 속도** | **EfficientNetB0** | **98.97%** | 경량 모델, 실시간 처리 |
+| **높은 Precision** | **ConvNeXt** | 97.80% | False Positive 최소화 (99.46%) |
 
-2. **더 다양한 앙상블 기법**
-   - Stacking, Weighted Ensemble 등
-   - 3개 이상 모델 조합 실험
-
-3. **설명 가능한 AI**
-   - Grad-CAM, LIME 등을 통한 판단 근거 시각화
-   - 사용자 신뢰도 향상
-
-4. **실시간 웹 서비스**
-   - Gradio/Streamlit 기반 웹 인터페이스 개발
-   - 일반 사용자도 쉽게 사용 가능한 서비스 구축
-
-5. **경량화**
-   - 모델 양자화(Quantization) 및 프루닝(Pruning)
-   - 모바일 환경에서도 동작 가능하도록 최적화
-
-### 프로젝트를 통해 배운 점
-
-1. **전이학습의 효과**
-   - ImageNet 사전학습 모델이 AI 이미지 판별에도 효과적
-   - EfficientNet이 파라미터 대비 가장 우수한 성능
-
-2. **앙상블의 실전 적용**
-   - Soft Voting이 Hard Voting보다 우수
-   - 상위 2개 모델 조합으로 +0.23%p 성능 향상
-
-3. **실용적 시스템 구축**
-   - 99.20% 정확도로 실제 환경에서 활용 가능
-   - 추론 시스템 구현으로 즉시 사용 가능
-
-### 최종 권장사항
-
-본 프로젝트를 통해 총 7개의 모델을 평가한 결과, **최고 정확도 달성을 위해 다음을 권장합니다:**
-
-### 모델 성능 분석
-
-| 순위 | 모델 | 정확도 | Precision | Recall | F1-Score | 특징 |
-|------|------|--------|-----------|--------|----------|------|
-| **1위** | **Ensemble (Soft)** | **99.20%** | **99.43%** | **98.97%** | **99.20%** | **최고 정확도** |
-| 2위 | EfficientNetB0 | 98.97% | 99.13% | 98.80% | 98.96% | 단일 모델 중 최고 |
-| 3위 | ResNet50 | 98.78% | 99.13% | 98.43% | 98.78% | 안정적 성능 |
-| 4위 | Ensemble (Hard) | 98.75% | 99.59% | 97.90% | 98.74% | 높은 Precision |
-
-**결론**: 본 프로젝트의 목표는 AI 생성 이미지 판별의 **최대 정확도 달성**이므로, **Ensemble (Soft Voting) 99.20%**를 최종 모델로 권장합니다.
+본 프로젝트는 AI 생성 이미지 판별 분야에서 **실용적으로 활용 가능한 고성능 시스템**을 제시하며, 딥러닝 모델이 인간이 감지하기 어려운 미세한 패턴까지 학습할 수 있음을 입증했습니다.
 
 
 ---
@@ -495,12 +413,6 @@ EfficientNetB0 + ResNet50 조합으로 두 가지 앙상블 방식을 구현:
 [![프로젝트 발표 영상](https://img.youtube.com/vi/O5qpDoHcEqI/0.jpg)](https://youtu.be/O5qpDoHcEqI)
 
 
-**영상 내용**:
-- 프로젝트 소개 및 동기
-- 데이터셋 설명
-- 모델 구조 및 학습 과정
-- 결과 분석 및 시연
-- 결론 및 배운 점
 
 ---
 
@@ -754,4 +666,4 @@ python src/inference.py --model efficientnet_b0 --image "image.jpg" --output "re
 
 ---
 
-**Last Updated**: 2025-12-06 (앙상블 모델 및 ConvNeXt 추가)
+**Last Updated**: 2025-12-09 (final)
