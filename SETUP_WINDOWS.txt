@@ -1,0 +1,555 @@
+================================================================================
+AI 생성 이미지 판별 프로젝트 - Windows 환경 설정 가이드
+AI-Generated Image Detection Project - Windows Setup Guide
+================================================================================
+작성일: 2025-11-30
+프로젝트: AIX-DL-image-detection
+
+================================================================================
+📋 목차 (Table of Contents)
+================================================================================
+1. 프로젝트 개요
+2. 현재까지 완료된 작업
+3. Windows 환경 설정 방법
+4. CUDA 및 PyTorch 설치
+5. 데이터셋 다운로드 및 구조
+6. 프로젝트 실행 방법
+7. 다음 단계 작업
+8. 문제 해결 (Troubleshooting)
+
+================================================================================
+1. 프로젝트 개요
+================================================================================
+
+프로젝트명: AI 생성 이미지 판별 (AI-Generated Image Detection)
+목적: CNN 기반 딥러닝 모델로 AI 생성 이미지와 실제 이미지를 구분
+
+주요 기술 스택:
+- 딥러닝 프레임워크: PyTorch 2.0+
+- 모델: ResNet50, EfficientNetB0, VGG16, Custom CNN
+- 데이터: Kaggle - My Sampled Art Dataset 40k (~40,000장)
+
+팀원:
+- 송준우 (정보시스템학과) - 모델 구현, 블로그 관리
+- 전용현 (데이터사이언스학과) - 모델 구현
+- 서채원 (컴퓨터소프트웨어학과) - 모델 구현
+
+================================================================================
+2. 현재까지 완료된 작업
+================================================================================
+
+✅ 완료된 작업:
+------------------
+[프로젝트 구조]
+✓ 기본 프로젝트 구조 설정 완료
+✓ README.md 작성 (프로젝트 전체 문서)
+✓ requirements.txt 작성 (필요 패키지 목록)
+✓ .gitignore 설정 (대용량 데이터 파일 제외)
+
+[코드 구현]
+✓ src/data_loader.py - 데이터 로딩 및 DataLoader 구현
+✓ src/preprocessing.py - 이미지 전처리 및 데이터 증강
+✓ src/models.py - 딥러닝 모델 정의 (CNN, ResNet50, EfficientNet, VGG16)
+✓ src/train.py - 학습 파이프라인 구현
+
+[노트북]
+✓ notebooks/01_EDA.ipynb - 탐색적 데이터 분석
+✓ notebooks/02_preprocessing.ipynb - 데이터 전처리 실험
+
+[Git 관리]
+✓ Git 저장소 초기화
+✓ dev 브랜치에서 작업 중
+✓ 3개 커밋 완료:
+  - feat: Add training pipeline and models
+  - 데이터 전처리 작업 진행
+  - feat: 프로젝트 초기 설정 및 EDA 노트북 작성
+
+⏳ 진행 중인 작업:
+------------------
+→ Windows PC로 작업 환경 이전
+→ CUDA 환경 설정
+→ 모델 학습 시작 준비
+
+📌 아직 안 한 작업:
+------------------
+□ 데이터셋 다운로드 (Kaggle에서 40k 이미지)
+□ 모델 학습 실행
+□ 모델 평가 및 성능 분석
+□ Grad-CAM 시각화
+□ 결과 분석 및 보고서 작성
+□ 발표 영상 제작
+
+================================================================================
+3. Windows 환경 설정 방법
+================================================================================
+
+3-1. Git 저장소 클론
+------------------
+# Git이 설치되어 있어야 함 (https://git-scm.com/download/win)
+
+# 명령 프롬프트(CMD) 또는 PowerShell에서 실행:
+cd C:\Users\YourUsername\Desktop
+git clone [GitHub Repository URL]
+cd AIX-DL-image-detection
+
+# dev 브랜치로 전환 (현재 작업 브랜치)
+git checkout dev
+
+
+3-2. Python 가상환경 생성
+------------------
+# Python 3.8 이상 설치 필요 (권장: Python 3.10 or 3.11)
+# https://www.python.org/downloads/
+
+# 가상환경 생성
+python -m venv venv
+
+# 가상환경 활성화 (CMD)
+venv\Scripts\activate
+
+# 가상환경 활성화 (PowerShell)
+venv\Scripts\Activate.ps1
+
+# 가상환경이 활성화되면 프롬프트 앞에 (venv) 표시됨
+
+
+3-3. 프로젝트 구조 확인
+------------------
+AIX-DL-image-detection/
+├── README.md                 # 전체 프로젝트 문서
+├── requirements.txt          # 필요 패키지 목록
+├── SETUP_WINDOWS.txt         # 이 파일
+├── .gitignore
+│
+├── data/                     # 데이터셋 (용량 큰 파일은 git 제외)
+│   ├── raw/                  # 원본 데이터 (여기에 FAKE, REAL 폴더)
+│   └── processed/            # 전처리된 데이터
+│
+├── notebooks/                # Jupyter 노트북
+│   ├── 01_EDA.ipynb
+│   └── 02_preprocessing.ipynb
+│
+├── src/                      # 소스 코드
+│   ├── __init__.py
+│   ├── data_loader.py        # 데이터 로딩
+│   ├── preprocessing.py      # 전처리
+│   ├── models.py             # 모델 정의
+│   └── train.py              # 학습 스크립트
+│
+├── models/                   # 저장된 모델 (학습 후 생성됨)
+└── results/                  # 결과 파일 (학습 후 생성됨)
+
+================================================================================
+4. CUDA 및 PyTorch 설치 (NVIDIA GPU 사용 시)
+================================================================================
+
+4-1. NVIDIA GPU 확인
+------------------
+# GPU가 있는지 확인
+# 작업 관리자 > 성능 탭에서 GPU 확인
+# 또는 CMD에서:
+nvidia-smi
+
+# GPU가 없으면 CPU 버전 PyTorch 설치 (4-4 참고)
+
+
+4-2. CUDA Toolkit 설치
+------------------
+**중요**: PyTorch와 호환되는 CUDA 버전 설치 필요
+
+[옵션 1] CUDA 11.8 설치 (권장 - 안정적)
+---------------------------------------
+1. 다운로드 페이지:
+   https://developer.nvidia.com/cuda-11-8-0-download-archive
+
+2. 설치 옵션:
+   - Operating System: Windows
+   - Architecture: x86_64
+   - Version: 10 또는 11
+   - Installer Type: exe (local) 권장
+
+3. 다운로드 후 실행 (관리자 권한)
+   - Express 설치 선택
+   - 재부팅 필요할 수 있음
+
+4. 설치 확인:
+   nvcc --version
+
+
+[옵션 2] CUDA 12.1 설치 (최신)
+---------------------------------------
+1. 다운로드: https://developer.nvidia.com/cuda-downloads
+2. 위와 동일한 방법으로 설치
+
+
+4-3. cuDNN 설치 (선택사항, 성능 향상)
+------------------
+1. NVIDIA Developer 계정 필요 (무료)
+   https://developer.nvidia.com/cudnn
+
+2. cuDNN Download
+   - CUDA 버전에 맞는 cuDNN 선택
+   - 예: CUDA 11.8 → cuDNN v8.x for CUDA 11.x
+
+3. 압축 해제 후 파일 복사:
+   cudnn-windows-x86_64-8.x.x.x_cuda11-archive\bin\*.dll
+   → C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\
+
+   (lib, include 폴더도 동일하게 복사)
+
+
+4-4. PyTorch GPU 버전 설치
+------------------
+가상환경이 활성화된 상태에서 실행:
+
+[CUDA 11.8용 PyTorch] (권장)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+[CUDA 12.1용 PyTorch]
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+[CPU 버전 PyTorch] (GPU 없을 경우)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+
+4-5. PyTorch 설치 확인
+------------------
+# Python 실행
+python
+
+# 다음 코드 실행:
+import torch
+print(f"PyTorch version: {torch.__version__}")
+print(f"CUDA available: {torch.cuda.is_available()}")
+print(f"CUDA version: {torch.version.cuda}")
+
+if torch.cuda.is_available():
+    print(f"GPU device: {torch.cuda.get_device_name(0)}")
+    print(f"GPU count: {torch.cuda.device_count()}")
+else:
+    print("No GPU detected - using CPU")
+
+# 예상 출력 (GPU 있을 경우):
+# PyTorch version: 2.x.x+cu118
+# CUDA available: True
+# CUDA version: 11.8
+# GPU device: NVIDIA GeForce RTX 3060 (예시)
+# GPU count: 1
+
+
+4-6. 나머지 패키지 설치
+------------------
+# requirements.txt의 모든 패키지 설치
+pip install -r requirements.txt
+
+# 설치 확인
+pip list
+
+
+================================================================================
+5. 데이터셋 다운로드 및 구조
+================================================================================
+
+5-1. Kaggle 데이터셋 정보
+------------------
+데이터셋명: My Sampled Art Dataset 40k
+출처: https://www.kaggle.com/datasets/mkevinrinaldi/my-sampled-art-dataset-40k
+크기: 약 40,000장 (FAKE: ~20,000, REAL: ~20,000)
+
+
+5-2. 데이터셋 다운로드 방법
+------------------
+
+[방법 1] Kaggle 웹사이트에서 수동 다운로드 (추천)
+------------------------------------------------
+1. Kaggle 계정 로그인 필요
+   https://www.kaggle.com/
+
+2. 데이터셋 페이지 방문
+   https://www.kaggle.com/datasets/mkevinrinaldi/my-sampled-art-dataset-40k/data
+
+3. "Download" 버튼 클릭 (우측 상단)
+   → archive.zip 파일 다운로드 (~3-4GB)
+
+4. 압축 해제
+   # 다운로드 폴더에서 프로젝트 폴더로 이동
+   # archive.zip 파일을 data/raw/ 폴더에 압축 해제
+
+   # PowerShell에서:
+   Expand-Archive -Path "archive.zip" -DestinationPath ".\data\raw\"
+
+   # 또는 7-Zip, WinRAR 등 사용
+
+
+[방법 2] Kaggle API 사용 (자동화)
+------------------------------------------------
+1. Kaggle API 설치
+   pip install kaggle
+
+2. Kaggle API Token 다운로드
+   - Kaggle 웹사이트 로그인
+   - Account 설정 > API > "Create New API Token"
+   - kaggle.json 파일 다운로드
+
+3. kaggle.json 파일 위치
+   Windows: C:\Users\YourUsername\.kaggle\kaggle.json
+
+   # 폴더 생성
+   mkdir C:\Users\YourUsername\.kaggle
+   # kaggle.json 파일을 해당 위치에 복사
+
+4. 데이터셋 다운로드
+   kaggle datasets download -d mkevinrinaldi/my-sampled-art-dataset-40k
+
+   # 압축 해제
+   unzip my-sampled-art-dataset-40k.zip -d ./data/raw/
+
+
+5-3. 데이터 구조 확인
+------------------
+다운로드 및 압축 해제 후:
+
+data/raw/
+├── FAKE/                  # AI 생성 이미지 (~20,000장)
+│   ├── 0-100086213-128066_AI_SD_art_nouveau.jpg
+│   ├── 0-100157086-913505_AI_LD_art_nouveau.jpg
+│   └── ...
+└── REAL/                  # 실제 예술 작품 (~20,000장)
+    ├── a--y---jackson_barns-1926_Human_Post_Impressionism.jpg
+    ├── a--y---jackson_grey-day-laurentians-1928_Human_Art_Nouveau_Modern.jpg
+    └── ...
+
+# 확인 방법 (PowerShell):
+Get-ChildItem -Path ".\data\raw\FAKE" | Measure-Object
+Get-ChildItem -Path ".\data\raw\REAL" | Measure-Object
+
+# 또는 CMD:
+dir data\raw\FAKE /b | find /c /v ""
+dir data\raw\REAL /b | find /c /v ""
+
+
+5-4. 데이터 전처리
+------------------
+데이터 다운로드 후 전처리 스크립트 실행:
+
+# 옵션 1: Python 스크립트로 전처리
+python src/preprocessing.py
+
+# 옵션 2: Jupyter 노트북에서 실행
+jupyter notebook notebooks/02_preprocessing.ipynb
+
+전처리 내용:
+- 이미지 리사이징 (224x224)
+- 정규화 (픽셀 값 [0,1] 범위)
+- Train/Val/Test 분할 (70%/15%/15%)
+- 메타데이터 생성
+
+================================================================================
+6. 프로젝트 실행 방법
+================================================================================
+
+6-1. Jupyter Notebook 실행
+------------------
+# Jupyter Notebook 시작
+jupyter notebook
+
+# 브라우저에서 자동 열림
+# notebooks/ 폴더에서 노트북 실행:
+# - 01_EDA.ipynb (데이터 분석)
+# - 02_preprocessing.ipynb (전처리)
+
+
+6-2. 모델 학습 실행
+------------------
+# 기본 학습 실행 (ResNet50)
+python src/train.py
+
+# 특정 모델로 학습
+python src/train.py --model resnet50 --epochs 50 --batch-size 32
+
+# 사용 가능한 옵션:
+# --model: resnet50, efficientnet, vgg16, custom_cnn
+# --epochs: 학습 에포크 수 (기본: 50)
+# --batch-size: 배치 크기 (기본: 32)
+# --lr: 학습률 (기본: 0.001)
+# --device: cuda 또는 cpu (자동 감지)
+
+
+6-3. TensorBoard 모니터링
+------------------
+# 학습 중 다른 터미널에서 실행
+tensorboard --logdir=runs
+
+# 브라우저에서 http://localhost:6006/ 접속
+# 학습 곡선, 손실 그래프 실시간 확인
+
+
+6-4. 모델 평가
+------------------
+# 학습된 모델 평가
+python src/evaluate.py --model-path models/best_model.pth
+
+# 결과:
+# - Accuracy, Precision, Recall, F1-Score
+# - Confusion Matrix
+# - ROC Curve
+
+================================================================================
+7. 다음 단계 작업
+================================================================================
+
+우선순위별 작업 목록:
+
+[1순위] 환경 설정 및 데이터 준비
+----------------------------------
+□ Windows PC에 프로젝트 클론
+□ CUDA + PyTorch 설치
+□ 데이터셋 다운로드 (Kaggle)
+□ 데이터 전처리 실행
+
+[2순위] 모델 학습
+----------------------------------
+□ ResNet50 모델 학습 시작
+□ 학습 과정 모니터링 (TensorBoard)
+□ 최적 모델 저장
+
+[3순위] 추가 모델 실험
+----------------------------------
+□ EfficientNetB0 학습
+□ VGG16 학습
+□ Custom CNN 학습
+□ 모델 성능 비교
+
+[4순위] 평가 및 분석
+----------------------------------
+□ 테스트 데이터로 모델 평가
+□ Confusion Matrix 생성
+□ ROC Curve 분석
+□ Grad-CAM 시각화 구현
+
+[5순위] 결과 정리
+----------------------------------
+□ 결과 그래프 생성
+□ README.md 업데이트 (성능 표 작성)
+□ 보고서 작성
+□ 발표 자료 준비
+□ 발표 영상 제작
+
+================================================================================
+8. 문제 해결 (Troubleshooting)
+================================================================================
+
+문제 1: "CUDA out of memory" 에러
+----------------------------------
+해결:
+- Batch size 줄이기: --batch-size 16 또는 8
+- 모델 크기 줄이기: EfficientNetB0 사용
+- 이미지 크기 줄이기: 224x224 → 128x128
+
+
+문제 2: PyTorch에서 CUDA 인식 안 됨
+----------------------------------
+해결:
+1. CUDA 버전과 PyTorch 버전 호환성 확인
+2. PyTorch 재설치:
+   pip uninstall torch torchvision torchaudio
+   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+3. 드라이버 업데이트: https://www.nvidia.com/Download/index.aspx
+
+
+문제 3: 데이터셋 경로 에러
+----------------------------------
+해결:
+- data/raw/FAKE, data/raw/REAL 폴더가 있는지 확인
+- 절대 경로 대신 상대 경로 사용
+- Windows 경로 구분자: \ 또는 / 모두 사용 가능
+
+
+문제 4: 패키지 설치 에러
+----------------------------------
+해결:
+# Visual C++ Build Tools 설치 필요할 수 있음
+https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+# 개별 패키지 설치 시도
+pip install torch
+pip install torchvision
+pip install matplotlib
+
+
+문제 5: Jupyter Notebook 커널 에러
+----------------------------------
+해결:
+# 가상환경을 Jupyter 커널로 추가
+python -m ipykernel install --user --name=venv --display-name="Python (venv)"
+
+# Jupyter에서 커널 선택: Kernel > Change Kernel > Python (venv)
+
+
+문제 6: Git 관련 에러
+----------------------------------
+# 원격 저장소 확인
+git remote -v
+
+# 원격 저장소 추가 (없는 경우)
+git remote add origin [GitHub URL]
+
+# 최신 코드 가져오기
+git pull origin dev
+
+================================================================================
+📞 연락처 및 참고 자료
+================================================================================
+
+프로젝트 관련 문의:
+- 송준우: jwsong5160@gmail.com
+- 전용현: jeonyh010328@gmail.com
+- 서채원: tjcodnjs111@gmail.com
+
+참고 자료:
+- PyTorch 공식 문서: https://pytorch.org/docs/
+- Kaggle 데이터셋: https://www.kaggle.com/datasets/mkevinrinaldi/my-sampled-art-dataset-40k
+- CUDA 다운로드: https://developer.nvidia.com/cuda-downloads
+- 프로젝트 GitHub: [Repository URL]
+
+================================================================================
+📝 체크리스트
+================================================================================
+
+Windows PC 설정 완료 체크리스트:
+
+환경 설정
+□ Git 설치 완료
+□ Python 3.8+ 설치 완료
+□ 프로젝트 클론 완료
+□ 가상환경 생성 및 활성화
+
+CUDA & PyTorch
+□ NVIDIA GPU 확인
+□ CUDA Toolkit 설치
+□ PyTorch GPU 버전 설치
+□ torch.cuda.is_available() = True 확인
+
+패키지 설치
+□ requirements.txt 설치 완료
+□ pip list로 패키지 확인
+
+데이터셋
+□ Kaggle 데이터셋 다운로드
+□ data/raw/FAKE 폴더 존재
+□ data/raw/REAL 폴더 존재
+□ 이미지 파일 개수 확인 (~40,000장)
+
+실행 테스트
+□ Jupyter Notebook 실행 가능
+□ Python 스크립트 실행 가능
+□ GPU 메모리 확인
+
+준비 완료!
+□ 모델 학습 시작할 준비 완료
+
+================================================================================
+작성자: Claude Code Assistant
+최종 수정: 2025-11-30
+버전: 1.0
+================================================================================
